@@ -1,0 +1,45 @@
+High-Level Overview
+    This web crawler is designed to extract product URLs from e-commerce websites efficiently while handling different website structures. It supports both sitemap-based crawling and HTML parsing for sites without sitemaps. Additionally, it can extract product links from JavaScript-rendered pages.
+
+Key Features
+    Efficient Crawling: Uses Goroutines and WaitGroups for concurrency.
+    Rate Limiting: Ensures compliance with website rate limits (5 requests/sec).
+    Dynamic Adaptation: Detects sitemaps automatically and falls back to HTML parsing.
+    Structured Data Storage: Saves extracted product URLs in both JSON and CSV formats.
+
+Approach & Step-by-Step Execution
+1. Load Domains
+    Reads the list of domains from domains.json.
+
+2. Initialize Concurrency Management
+    Uses sync.WaitGroup for Goroutine synchronization.
+    Implements rate limiting using time.NewTicker (5 requests per second).
+    Uses a channel (ch) to collect extracted product URLs.
+
+3. Process Each Domain in Parallel
+    Spawns a Goroutine for each domain.
+
+4. Check for Sitemaps using robots.txt
+    If sitemaps are found, extract product URLs directly from the sitemap files.
+    Otherwise, move to HTML-based extraction.
+
+5. Extract Product Links from HTML Pages (If No Sitemap)
+    Identify category pages and extract links from them.
+    Crawl static HTML and JavaScript-rendered pages separately to capture dynamically loaded products.
+
+6. Store Extracted URLs
+    Writes extracted product URLs into both JSON (output.json) and CSV (output.csv).
+
+7. Graceful Shutdown & Cleanup  
+    Uses WaitGroups to ensure all Goroutines complete execution.
+    Closes the channel after all crawling tasks are done.
+
+Concurrency & Rate Limiting
+    Goroutines: Each domain is processed in a separate Goroutine.
+    WaitGroups: Used to wait for all crawling tasks to finish before storing results.
+    Ticker for Rate Limiting: Ensures requests do not exceed 5 per second to prevent server overload.
+
+Scalability & Future Enhancements
+    Distributed Crawling: Can be extended to use worker queues and multiple instances.
+    Improved JavaScript Handling: Integrate a headless browser like Playwright or Puppeteer for better JS execution.
+    Error Handling & Retries: Implement exponential backoff for failed requests.
